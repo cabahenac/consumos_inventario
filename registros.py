@@ -98,8 +98,8 @@ class ReporteAMS(RegistroConsumos):
         *,
         fecha: Optional[datetime] = None,
         col_rvos: str = "lblNombreEstudioGrd",
-        rvos_json: str = "C:/Users/monterrey1/Documents/Projects/rvos.json",
-        cols_json: str = "C:/Users/monterrey1/Documents/Projects/cols.json",
+        rvos_json: str = "rvos.json",
+        cols_json: str = "cols.json",
         folder: str = "C:/Users/monterrey1/Documents/Inventarios/",
         file_regex: str = "AMS ",
     ) -> None:
@@ -196,8 +196,8 @@ class Bitacora(RegistroConsumos):
         *,
         fecha: Optional[datetime] = None,
         col_rvos: str = "lblNombreEstudioGrd",
-        rvos_json: str = "C:/Users/monterrey1/Documents/Projects/rvos.json",
-        cols_json: str = "C:/Users/monterrey1/Documents/Projects/cols.json",
+        rvos_json: str = "rvos.json",
+        cols_json: str = "cols.json",
         folder: str = "C:/Users/monterrey1/Downloads/",
         file_regex: str = "Bitácoras de reactivos",
     ) -> None:

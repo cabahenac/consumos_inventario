@@ -9,7 +9,7 @@ def ayer() -> date:
 
 
 def dia_laboral(
-    file_path: str = "C:/Users/monterrey1/Documents/Projects/festivos.txt",
+    file_path: str = "festivos.txt",
 ) -> datetime:
     """Determina el día laboral más reciente y lo devuelve para utilizarlo como fecha de consumo"""
 
@@ -29,6 +29,12 @@ def read_json(file) -> dict:
     """Lee un archivo JSON y devuelve un dictionario"""
     with open(file, "r") as f:
         return json.load(f)
+    
+
+def read_list_from_txt(file_path: str = 'C:/Users/monterrey1/Documents/Projects/ignore.txt'):
+    '''Lee las lineas de un archivo txt y devuelve una lista'''
+    with open(file_path, 'r') as f:
+        return [line.rstrip() for line in f]
 
 
 def read_camel_case(col_name: str) -> str:

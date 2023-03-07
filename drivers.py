@@ -20,7 +20,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
-from utilidades import User, ayer, read_camel_case
+from utilidades import User, ayer, read_camel_case, read_list_from_txt
 
 
 class LIS(Protocol):
@@ -199,56 +199,61 @@ class DriverConsumos(Driver):
                 pass
         return rvos
 
-    def capturar_filas(
-        self,
-        df: pd.DataFrame,
-        starting_row: int = 2,
-        max_num_rvos: int = 70,
-        sleep_time: int = 0,
-    ):
-        """Captura los consumos y devuelve información al usuario sobre las excepciones"""
-        sin_consumo = (
-            set()
-        )  # Inicializa un set para almacenar los reactivos sin consumo
-
+    def capturar_filas(self, df: pd.DataFrame, starting_row: int = 2, max_num_rvos: int = 70, sleep_time: int = 0):
+        '''Captura los consumos y devuelve información al usuario sobre las excepciones'''
+        sin_consumo = set()  # Inicializa un set para almacenar los reactivos sin consumo
+        ignore = read_list_from_txt()
         sleep(sleep_time)
 
         for row in range(starting_row, max_num_rvos + 2):
-            id = f"{self.lis.data_table_id}_ctl{row:02}_{self.lis.rvos_col_id}"
-            rvo = ""
-            try:  # Intenta encontrar la fila
+            id = f'{self.lis.data_table_id}_ctl{row:02}_{self.lis.rvos_col_id}'
+            rvo = ''
+            try: # Intenta encontrar la fila
                 rvo = self.driver.find_element(By.ID, id).text
                 # started = True # Después del primer éxito, cambiar el estado a iniciado
             except NoSuchElementException:
                 pass
+            
+            if rvo in ignore:
+                continue
 
-            if rvo not in df.index:  # Revisa si hay consumo
-                sin_consumo.add(rvo)  # Si no, lo agrega al set
-                continue  # Y continua con el siguiente reactivo
+            if rvo not in df.index: # Revisa si hay consumo
+                sin_consumo.add(rvo) # Si no, lo agrega al set
+                continue            # Y continua con el siguiente reactivo
 
-            self.capturar_cols(df, rvo, row)  # Ejecuta la captura
+            self.capturar_cols(df, rvo, row) # Ejecuta la captura
+
+            if rvo == 'CLORO-S':
+                cal_ict = self.driver.find_element(By.ID, f'{self.lis.data_table_id}_ctl{row:02}_txtCalibracionCapMGrd')
+                cal_ict.clear()
+                cal_ict.send_keys(18)
+                
 
         # Al terminar el loop de filas, retroalimentar el usuario con la información relevante
-        print(
-            "\nIMPORTANTE: Los consumos ya capturados no se modifican. Si desea hacer cambios se deben hacer de manera manual."
-        )
+        print('\nIMPORTANTE: Los consumos ya capturados no se modifican. Si desea hacer cambios se deben hacer de manera manual.')
         if sin_consumo:
-            print(
-                f'\nNo se capturó {", ".join(sin_consumo)} debido a que no hay consumo.'
-            )
+            print(f'\nNo se capturó {", ".join(sin_consumo)} debido a que no hay consumo.')
+
 
     def capturar_cols(self, df: pd.DataFrame, rvo: str, row: int) -> None:
-        cols_ya_capturadas = (
-            []
-        )  # Inicializa una lista para almacenar las columnas ya capturadas
+        cols_ya_capturadas = []  # Inicializa una lista para almacenar las columnas ya capturadas
+
+        existencia = self.driver.find_element(By.ID, f'{self.lis.data_table_id}_ctl{row:02}_{self.lis.inv_id}')
+
+        if existencia:
+            inventario = int(existencia.text)
 
         for col in df.columns:
-            id = f"{self.lis.data_table_id}_ctl{row:02}_{col}"
+            id = f'{self.lis.data_table_id}_ctl{row:02}_{col}'
             element = self.driver.find_element(By.ID, id)
             consumo = df.loc[rvo, col]
 
+            if consumo > inventario:
+                print(f'\nNO SE CAPTURÓ EL CONSUMO DE {rvo}, PORQUE RESULTARÍA EN NÚMEROS NEGATIVOS. POR FAVOR REVÍSALO MANUALMENTE.\n')
+                return
+
             # Extrae el valor capturado
-            capturado = int(element.get_attribute("value"))
+            capturado = int(element.get_attribute('value'))
             if capturado:  # Si ya hay un valor capturado, anexar la columna a la lista
                 cols_ya_capturadas.append(read_camel_case(col))
                 continue  # Continuar con el siguiente reactivo
