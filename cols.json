@@ -1,0 +1,37 @@
+{
+    "IM": [
+        "lblNombreEstudioGrd",
+        "numbers",
+        "txtRepeticiones",
+        "manual_edits",
+        "txtControlCapMGrd",
+        "txtPacientes"
+    ],
+    "BQ": [
+        "lblNombreEstudioGrd",
+        "numbers",
+        "txtRepeticiones",
+        "manual_edits",
+        "txtControlCapMGrd",
+        "txtPacientes"
+    ],
+    "Aceptaci\u00f3n": {
+        "FECHA": "fecha",
+        "ENSAYO": "lblNombreEstudioGrd",
+        "EN CALIBRACI\u00d3N": "txtCalibracionCapMGrd"
+    },
+    "Disposici\u00f3n": {
+        "FECHA": "fecha",
+        "PRODUCTO": "lblNombreEstudioGrd",
+        "N\u00daMERO DE PRUEBAS MERMADAS": "txtCancelacionCapMGrd"
+    },
+    "Excepciones": {
+        "FECHA": "fecha",
+        "ENSAYO": "lblNombreEstudioGrd",
+        "CC": "txtControlCapMGrd",
+        "Cal": "txtCalibracionCapMGrd",
+        "Px": "txtPacientes",
+        "Rep": "txtRepeticiones",
+        "Canc": "txtCancelacionCapMGrd"
+    }
+}
