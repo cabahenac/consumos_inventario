@@ -4,34 +4,35 @@ from getpass import getpass
 
 
 def ayer() -> date:
-    '''Determina y devuelve la fecha de ayer para utilizarla como fecha de captura'''
+    """Determina y devuelve la fecha de ayer para utilizarla como fecha de captura"""
     return date.today() - timedelta(1)
 
 
-def dia_laboral(file_path: str = 'C:/Users/monterrey1/Documents/Projects/festivos.txt') -> datetime:
-    '''Determina el día laboral más reciente y lo devuelve para utilizarlo como fecha de consumo'''
+def dia_laboral(
+    file_path: str = "C:/Users/monterrey1/Documents/Projects/festivos.txt",
+) -> datetime:
+    """Determina el día laboral más reciente y lo devuelve para utilizarlo como fecha de consumo"""
 
     # Cargar días festivos
-    with open(file_path, 'r') as f:
-        festivos = [datetime.strptime(line.rstrip(), '%Y-%m-%d') for line in f]
+    with open(file_path, "r") as f:
+        festivos = [datetime.strptime(line.rstrip(), "%Y-%m-%d").date() for line in f]
 
     # Determinar día laboral más reciente
     if ayer() in festivos:
         return ayer() - timedelta(2)
-    elif ayer().weekday() == 6:
+    if ayer().weekday() == 6:
         return ayer() - timedelta(1)
-    else:
-        return ayer()
+    return ayer()
 
 
 def read_json(file) -> dict:
-    '''Lee un archivo JSON y devuelve un dictionario'''
-    with open(file, 'r') as f:
+    """Lee un archivo JSON y devuelve un dictionario"""
+    with open(file, "r") as f:
         return json.load(f)
 
 
 def read_camel_case(col_name: str) -> str:
-    '''Extrae la segunda palabra de string en camelcase'''
+    """Extrae la segunda palabra de string en camelcase"""
     upper_chars = []
     for i, char in enumerate(col_name):
         if char.isupper():
@@ -45,17 +46,17 @@ def read_camel_case(col_name: str) -> str:
 
 
 def stand_by(msg: str):
-    '''Pausa el proceso hasta recibir un input válido'''
+    """Pausa el proceso hasta recibir un input válido"""
     valid_input = False
     while not valid_input:
         input_ = str(input(msg)).upper()
-        if input_ == 'S':
+        if input_ == "S":
             exit()
 
 
 class User:
-    '''Contiene los datos de usuario'''
+    """Contiene los datos de usuario"""
 
     def __init__(self) -> None:
-        self.user_name: str = input('\nUsuario: ')
+        self.user_name: str = input("\nUsuario: ")
         self.password: str = getpass()

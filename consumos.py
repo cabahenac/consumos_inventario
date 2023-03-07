@@ -5,15 +5,17 @@ import sys
 
 
 def main(*, clear_mode=False) -> None:
-    '''Ejecuta el proceso estándar de captura actual'''
+    """Ejecuta el proceso estándar de captura actual"""
     if not clear_mode:
-        reg = Organizador([
-            ReporteAMS(TipoReg.AMS_BQ),
-            ReporteAMS(TipoReg.AMS_IM),
-            Bitacora(TipoReg.BIT_CAL),
-            Bitacora(TipoReg.BIT_CANC),
-            Bitacora(TipoReg.BIT_EX),
-        ])
+        reg = Organizador(
+            [
+                ReporteAMS(TipoReg.AMS_BQ),
+                ReporteAMS(TipoReg.AMS_IM),
+                Bitacora(TipoReg.BIT_CAL),
+                Bitacora(TipoReg.BIT_CANC),
+                Bitacora(TipoReg.BIT_EX),
+            ]
+        )
     driver = DriverConsumos(ConsumosApp, User)
     driver.driver_check()
     driver.send_fecha_captura()
@@ -29,12 +31,14 @@ def main(*, clear_mode=False) -> None:
     else:
         driver.clear_capturados(sleep_time=5)
     driver.save()
+    stand_by('\nEscribe "S" para salir \n')
+    print(driver)
+    print(reg.df)
 
 
-if __name__ == '__main__':
-    if '-c' in sys.argv:
-        print('\nIniciando en modo limpieza')
+if __name__ == "__main__":
+    if "-c" in sys.argv:
+        print("\nIniciando en modo limpieza")
         main(clear_mode=True)
     else:
         main(clear_mode=False)
-    stand_by('\nEscribe "S" para salir \n')
