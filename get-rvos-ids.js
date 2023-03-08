@@ -4,6 +4,12 @@ import * as cheerio from 'cheerio';
 import loginQuimios from './login-quimios.js';
 import { consumosSearchPostReqBody } from './req-bodies.js';
 
+const prefix = 'ctl00$ContentMasterPage$grdConsumo$ctl';
+const suffix = {
+  checkbox: 'chkQueProveedor',
+  
+};
+
 export default async function getRvosIds() {
   const sessionCookie = await loginQuimios('cbahena', 'alpe58');
   
@@ -19,13 +25,24 @@ export default async function getRvosIds() {
   // Load the HTML response to the cheerio $ function.
   const $ = cheerio.load(res.data);
 
-  // Grab each reagent and make and object to map reagent name to html id.
-  const rvosIds = {};
+  // Grab each reagent name and it's row number.
+  const rows = {};
   $('.wd090').each((i, e) => {
     const rvo = $(e).text();
-    const id = $(e).attr('id').slice(38, 40);
-    rvosIds[rvo] = id;
+    const row = $(e).attr('id').slice(38, 40);
+    rows[rvo] = row;
   });
 
-  return rvosIds;
+  const rvosMetaData = {}
+  for (let rvo in rows) {
+    rvosMetaData[rvo] = {}
+    rvosMetaData[rvo][prefix + rows[rvo] + suffix.checkbox] = 'on'
+  }
+
+  const consumosPostReqData = {};
+  for (let rvo in rvosMetaData) {
+    Object.assign(consumosPostReqData, rvosMetaData[rvo]);
+  }
+
+  console.log(consumosPostReqData);
 }

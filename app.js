@@ -8,14 +8,19 @@ import { consumosSavePostReqBody } from './req-bodies.js';
 
 (async () => {
   const sessionCookie = await loginQuimios('cbahena', 'alpe58');
-
+  const date = '06032023'
+  
   const res = await axios.post(
     'http://172.16.0.117/Inventarios/ConsumoReacLabMasivo.aspx',
     querystring.stringify({
       ...consumosSavePostReqBody,
     }),
     { headers: { Cookie: sessionCookie } },
-  );
-
-  console.log(res.data);
+    );
+    
+    console.log(res.data);
+  });
+  
+(async () => {
+  const rvos = await getRvosIds();
 })();
