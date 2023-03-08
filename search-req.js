@@ -2,7 +2,7 @@ import axios from 'axios';
 import querystring from 'querystring';
 import * as cheerio from 'cheerio';
 import loginQuimios from './login-quimios.js';
-import { consumosSearchPostReqBody } from './req-bodies.js';
+import reqBody from './requests.js';
 
 const prefix = 'ctl00$ContentMasterPage$grdConsumo$ctl';
 const suffix = {
@@ -10,18 +10,20 @@ const suffix = {
   
 };
 
-export default async function getRvosIds() {
+export default async function searchReq(sessionCookie) {
   const sessionCookie = await loginQuimios('cbahena', 'alpe58');
   
   // POST request with the session cookie in the headers.
   const res = await axios.post(
     'http://172.16.0.117/Inventarios/ConsumoReacLabMasivo.aspx',
     querystring.stringify({
-      ...consumosSearchPostReqBody,
+      ...reqBody.search,
     }),
     { headers: { Cookie: sessionCookie } },
   );
   
+  return res.data;
+
   // Load the HTML response to the cheerio $ function.
   const $ = cheerio.load(res.data);
 
