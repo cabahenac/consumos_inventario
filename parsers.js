@@ -1,4 +1,14 @@
-import * as cheerio from 'cheerio';
+import { PdfDataParser } from 'pdf-data-parser';
+import quimiosNames from './quimios-names.js';
+
+function index(searchFor) {
+  // Searches for a word and returns it's index.
+  for (let i=0; i<data.length; i++) {
+    if (data[i] === searchFor) return i;
+  }
+}
+
+
 
 // For all functions, $ stands for a cheerio HTML parser function.
 

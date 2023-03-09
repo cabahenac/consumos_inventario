@@ -3,7 +3,7 @@ import querystring from 'querystring';
 import {load} from 'cheerio';
 import parsePdf from './parse-pdf.js';
 import { post, getCookie, reqConfig, domain } from './requests.js';
-import { getRows } from './html-parser.js';
+import { getRows } from './parsers.js';
 
 
 (async () => {

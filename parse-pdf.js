@@ -1,5 +1,4 @@
-import { PdfDataParser } from 'pdf-data-parser';
-import quimiosNames from './quimios-names.js';
+
 
 
 export default async function parsePdf(file) {
@@ -7,13 +6,6 @@ export default async function parsePdf(file) {
   
   // Parse PDF, get the relevant data and split it by columns (spaces).
   let data = (await parser.parse())[0][0].split(' ');
-  
-  // Helper function to find the index of a word in an array.
-  const index = word => {
-    for (let i=0; i<data.length; i++) {
-      if (data[i] === word) return i;
-    }
-  };
 
   // Find the words that mark the beggining and the end of the relevant data and filter the data.
   data = data.slice(index('any') + 1, index('Total'));
