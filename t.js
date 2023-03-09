@@ -25,21 +25,33 @@ async function parsePdf(file) {
 
 
 async function getPdfData(from, to) {
-  const files = await readdir('./pdf');
+  // Read directory and get all file names.
+  let files = await readdir('./pdf');
+
+  // Filter PDF files.
+  files = files.filter(file => file.endsWith('.pdf'));
   
-  const pdfData = files.map(file => {
-    parsePdf('./pdf/' + file).then(data => {
-      const [start, end] = period(data);
-      const min = Date.parse(from)
-      const max = Date.parse(to)
-      
-      if (start >= min && end <= max) {
-        return data;
-      }
-    });
-  });
-  console.log(pdfData);
-  return pdfData
+  // Queue a promise of parsing each file.
+  const promisesOfData = files.map(
+    file => parsePdf('./pdf/' + file)
+  );
+  
+  // Parse from and to dates to a date integer.
+  const min = Date.parse(from)
+  const max = Date.parse(to)
+
+  const pdfData = []
+  // Continue after all files are parsed.
+  for await (let data of promisesOfData) {
+    // Parse the date period of the data in the file.
+    const [start, end] = period(data);
+    // If the period is between the target dates...
+    if (start >= min && end <= max) {
+      pdfData.push(data); // ...append the data.
+    }
+  };
+
+  return pdfData;
 }
 
 
