@@ -1,13 +1,13 @@
 class UnexpectedColumns extends Error {
-  constructor(currCol, cols, row) {
+  constructor(currCol, cols, row = 1, file = 'file') {
     super(
-      `Failed to parse file. Expected ${cols.length} columns: ${cols}. Parsed ${currCol} columns at row ${row}.`
+      `Failed to parse ${file}. Expected ${cols.length} columns: ${cols}. Parsed ${currCol} columns at row ${row}.`
     );
     this.name = "UnexpectedColumns";
   }
 }
 
-const fruits = ['apple', 1, 'orange', 4, 5, 'pineapple', 5, 6,];
+const fruits = ['apple', 'orange', 4, 5, 'pineapple', 5,];
 const obj = {};
 const cols = ['a', 'b'];
 let currFruit = '';
@@ -15,17 +15,15 @@ const expectedCols = 2
 let currCol = 2;
 
 
-function checkCols(rvo) {
+function checkCols(row) {
   if (currCol !== cols.length) {
-    throw new UnexpectedColumns(currCol, cols, rvo);
+    throw new UnexpectedColumns(currCol, cols, row);
   }
 }
 
-let row = -1
 for (let el of fruits) {
   if (isNaN(el)) {
-    checkCols(obj[el]);
-    row++
+    checkCols(x);
     obj[el] ??= {'a': 0, 'b': 0};
     currFruit = el;
     currCol = 0
@@ -33,7 +31,9 @@ for (let el of fruits) {
   }
   if (el) {
     obj[currFruit][cols[currCol]] += el;
-    currCol++;
   }
+  currCol++;
+  var x = currFruit;
+  console.log(obj);
 }
-checkCols(obj[el]);
+checkCols(x);
