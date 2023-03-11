@@ -1,7 +1,7 @@
 import { PdfDataParser } from 'pdf-data-parser';
 import { readdir } from 'fs/promises';
 import quimiosNames from './quimios-names.js';
-import { checkCols } from './utils.js';
+import { checkCols, objAtZeroFactory } from './utils.js';
 import { log } from 'console';
 
 
@@ -68,27 +68,43 @@ export async function organizeConsumos(stringArray) {
   which would be the reagent's name. */
   const consumos = {};
   const cols = ['px', 'rep', 'qc', 'man'];
-  let newRvo = {};
-  cols.forEach(col => newRvo[col] = 0);
   let prevRvo;
   let currRvo;
-  let currCol = 2;
+  let currCol = cols.length;
+  let skipRvo = false;
 
   for (let string of stringArray) {
     /* If it's not a number, it's probably a reagent,
     since we already filtered the data. */
     if (isNaN(string)) {
+      /* Skip reagents that are not on the database
+      and log them to the console */
+      if (!quimiosNames[string]) {
+        skipRvo = true; // Program to skip consumos.
+        currCol = 0; // Clean up.
+        console.log(`El reactivo ${string} no está en la base de datos. Se ignorarán los consumos.`);
+        continue; // Continue to numbers but skip them in their if block.
+      }
       /* At the start of every reagent row, check 
       the number of columns of the previous row. */
-      //checkCols(currCol, cols, prevRvo);
+      checkCols(currCol, cols, prevRvo);
+      currCol = 0;
       // Get the QUIMIOS name of the reagent
+      skipRvo = false;
       currRvo = quimiosNames[string];
       /* If the reagent is not defined, assign 
       it to an empty object at 0 consumption. */
-      consumos[currRvo] ??= newRvo;
-      currCol = 0
-      console.log(consumos);
-      continue
+      consumos[currRvo] ??= objAtZeroFactory(cols);
+      continue;
+    }
+    // After each number found, update currCol.
+    currCol++;
+    /* And keep track of this reagent 
+    before it changes in the next loop. */
+    prevRvo = currRvo;
+    // Check if the reagent should be skipped.
+    if (skipRvo) {
+      continue;
     }
     // Coerse string into numeric.
     const consumption = +string
@@ -96,15 +112,9 @@ export async function organizeConsumos(stringArray) {
       consumos[currRvo] // Access the reagent.
       [cols[currCol]] // Access the column name.
       += consumption; // And sum the value.
-      console.log(consumos);
     }
-    // After each number found, update currCol.
-    currCol++;
-    /* And keep track of this reagent 
-    before it changes in the next loop. */
-    prevRvo = currRvo;
   }
-  //checkCols(currCol, cols, prevRvo);
+  checkCols(currCol, cols, prevRvo);
   return consumos;
 }
 
@@ -122,21 +132,3 @@ export function getRows($) {
   });
   return rows;
 }
-
-organizeConsumos(['ACVALPMT', '0',        '0',        '2',        '0',       'AFP_MTY',
-'0',        '0',        '2',        '0',        'BHCGMTY', '2',
-'0',        '2',        '0',        'CA125MTY', '1',       '0',
-'2',        '0',        'CA199MTY', '1',        '0',       '2',
-'0',        'CEA2MTY',  '1',        '0',        '2',       '0',
-'CORSMTY',  '10',       '0',        '2',        '0',       'ESTTOMTY',
-'2',        '0',        '0',        '0',        'E2MTY',   '6',
-'0',        '2',        '0',        'FERR_MTY', '0',       '0',
-'2',        '0',        'FSHMTY',   '6',        '0',       '2',
-'0',        'INSULMTY', '8',        '0',        '2',       '0',
-'IRI_MTY',  '3',        '0',        '0',        '0',       'ITLMTY',
-'19',       '0',        '0',        '0',        'LHMTY',   '5',
-'0',        '2',        '0',        'PROGMTY',  '3',       '0',
-'2',        '0',        'PROLMTY',  '8',        '0',       '2',
-'0',        'PSALIBMT', '1',        '0',        '2',       '0',
-'PSATOTMT', '3',        '0',        '2',        '0',       'TETOTMTY',
-'5',        '0',        '2',        '0',]).then(log);

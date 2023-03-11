@@ -13,3 +13,12 @@ export function checkCols(currCol, cols, row, file) {
     throw new UnexpectedColumns(currCol, cols, row, file);
   }
 }
+
+
+export function objAtZeroFactory(array) {
+  /* Takes an array and returns a new object
+  with each element as a key with value 0. */
+  let newObj = {};
+  array.forEach(el => newObj[el] = 0);
+  return newObj;
+}
