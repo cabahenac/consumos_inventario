@@ -7,33 +7,9 @@ class UnexpectedColumns extends Error {
   }
 }
 
-const fruits = ['apple', 'orange', 4, 5, 'pineapple', 5,];
-const obj = {};
-const cols = ['a', 'b'];
-let currFruit = '';
-const expectedCols = 2
-let currCol = 2;
 
-
-function checkCols(row) {
+export function checkCols(currCol, cols, row, file) {
   if (currCol !== cols.length) {
-    throw new UnexpectedColumns(currCol, cols, row);
+    throw new UnexpectedColumns(currCol, cols, row, file);
   }
 }
-
-for (let el of fruits) {
-  if (isNaN(el)) {
-    checkCols(x);
-    obj[el] ??= {'a': 0, 'b': 0};
-    currFruit = el;
-    currCol = 0
-    continue
-  }
-  if (el) {
-    obj[currFruit][cols[currCol]] += el;
-  }
-  currCol++;
-  var x = currFruit;
-  console.log(obj);
-}
-checkCols(x);
