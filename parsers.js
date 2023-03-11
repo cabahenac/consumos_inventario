@@ -62,59 +62,184 @@ export function filterData(arrayOfArrays) {
 } 
 
 
-export async function organizeConsumos(stringArray) {
-  /* Parses an array of string data and binds 
-  the numeric data to it's previous string, 
-  which would be the reagent's name. */
-  const consumos = {};
-  const cols = ['px', 'rep', 'qc', 'man'];
-  let prevRvo;
-  let currRvo;
-  let currCol = cols.length;
-  let skipRvo = false;
-
-  for (let string of stringArray) {
-    /* If it's not a number, it's probably a reagent,
-    since we already filtered the data. */
-    if (isNaN(string)) {
-      /* Skip reagents that are not on the database
-      and log them to the console */
-      if (!quimiosNames[string]) {
-        skipRvo = true; // Program to skip consumos.
-        currCol = 0; // Clean up.
-        console.log(`El reactivo ${string} no está en la base de datos. Se ignorarán los consumos.`);
-        continue; // Continue to numbers but skip them in their if block.
+class ArrayClassifier {
+  constructor(array, parentStrategy, parentChecker, childStrategy, expectedChilds, cleanUp, logger) {
+    this.array = array;
+    this.parentStrategy = parentStrategy;
+    this.parentChecker = parentChecker;
+    this.childStrategy = childStrategy;
+    this.expectedChilds = expectedChilds
+    this.cleanUp = cleanUp;
+    this.logger = logger;
+    this.log = []; // To log the ignored reagents.
+    this.currParent; // To which reagent the numbers belong to.
+    this.prevParent; // For error handling.
+    this.skip = false; // Don't skip by default.
+    this.currChild = expectedChilds.length; // Initial value for error handling.
+  }
+  
+  parse() {
+    let output = {}; // Return value accumulator.
+    for (let element of this.array) {
+      if (this.parentChecker(element)) {
+        this.parentStrategy(element, output);
+      } else {
+        this.childStrategy(element, output);
       }
-      /* At the start of every reagent row, check 
-      the number of columns of the previous row. */
-      checkCols(currCol, cols, prevRvo);
-      currCol = 0;
-      // Get the QUIMIOS name of the reagent
-      skipRvo = false;
-      currRvo = quimiosNames[string];
-      /* If the reagent is not defined, assign 
-      it to an empty object at 0 consumption. */
-      consumos[currRvo] ??= objAtZeroFactory(cols);
-      continue;
     }
-    // After each number found, update currCol.
-    currCol++;
-    /* And keep track of this reagent 
-    before it changes in the next loop. */
-    prevRvo = currRvo;
-    // Check if the reagent should be skipped.
-    if (skipRvo) {
-      continue;
-    }
+    this.cleanUp();
+    this.logger();
+    return output;
+  }
+}
+
+
+function rvoCheck(string) {
+  return isNaN(string);
+}
+
+
+function rvoStrategy(string, accumulator) {
+  /* Skip reagents that are not on the database
+  and log them to the console */
+  if (!quimiosNames[string]) {
+    this.skip = true; // Program to skip numbers.
+    this.currChild = 0; // Clean up before skipping reagent.
+    this.log.push(string);
+    return; // Continue to numbers and skip them in their loop cycle.
+  }
+  
+  /* At the start of every non-skippable reagent row, 
+  check the number of columns of the previous row. */
+  checkCols(this.currChild, this.expectedChilds, this.prevParent);
+  this.currChild = 0; // Then set the columns to 0.
+  this.skip = false; // And cancel skip.
+  
+  // Get the QUIMIOS name of the reagent
+  this.currParent = quimiosNames[string];
+  
+  /* If the reagent is not defined, assign 
+  it to an empty object at 0 consumption. */
+  accumulator[this.currParent] ??= objAtZeroFactory(this.expectedChilds);
+}
+
+
+function consumosStrategy(string, accumulator) {
+  // After each number found, update currCol.
+  /* And keep track of this reagent 
+  before it changes in the next loop. */
+  
+  // Check if the reagent should be skipped.
+  if (this.skip) {
+    this.currChild++;
+    this.prevParent = this.currParent;
+  } else {  
     // Coerse string into numeric.
     const consumption = +string
     if (consumption) {
-      consumos[currRvo] // Access the reagent.
-      [cols[currCol]] // Access the column name.
+      accumulator[this.currParent] // Access the reagent.
+      [this.expectedChilds[this.currChild]] // Access the column name.
       += consumption; // And sum the value.
     }
+
+    this.currChild++;
+    this.prevParent = this.currParent;
+
   }
+}
+
+
+function consumosCleanUp() {
+  checkCols(this.currChild, this.expectedChilds, this.prevParent);
+}
+
+
+function consumosLogger() {
+  if (this.log) {
+    console.log('\nSe ignoraron', ...this.log, 'debido a que no están en la base de datos.');
+  }
+}
+
+export function classifyConsumos(array, cols) {
+  const consumosOrganizer = new ArrayClassifier(array, rvoStrategy, rvoCheck, consumosStrategy, cols, consumosCleanUp, consumosLogger);
+  return consumosOrganizer.parse();
+}
+
+
+export function organizeConsumos(stringArray, cols = ['px', 'rep', 'qc', 'man']) {
+  /* Parses an array of string data and binds 
+  the numeric data to it's previous string, 
+  which would be the reagent's name. */
+  
+  // Initialize counters and trackers.
+  const consumos = {}; // Return value accumulator.
+  const ignored = []; // To log the ignored reagents.
+  let currRvo; // To which reagent the numbers belong to.
+  let prevRvo; // For error handling.
+  let skipRvo = false; // Don't skip by default.
+  let currCol = cols.length; // Initial value for error habdling.
+
+  for (let string of stringArray) {
+    
+    // NAME CASE
+    
+    /* If it's not a number, it's probably a reagent,
+    since we already filtered the data. */
+    if (isNaN(string)) {
+      
+      /* Skip reagents that are not on the database
+      and log them to the console */
+      if (!quimiosNames[string]) {
+        skipRvo = true; // Program to skip numbers.
+        currCol = 0; // Clean up before skipping reagent.
+        ignored.push(string);
+        continue; // Continue to numbers and skip them in their loop cycle.
+      }
+      
+      /* At the start of every non-skippable reagent row, 
+      check the number of columns of the previous row. */
+      checkCols(currCol, cols, prevRvo);
+      currCol = 0; // Then set the columns to 0.
+      skipRvo = false; // And cancel skip.
+      
+      // Get the QUIMIOS name of the reagent
+      currRvo = quimiosNames[string];
+      
+      /* If the reagent is not defined, assign 
+      it to an empty object at 0 consumption. */
+      consumos[currRvo] ??= objAtZeroFactory(cols);
+      
+      continue; // Skip the numbers part.
+    }
+    
+    // NUMBER CASE
+    
+    // Check if the reagent should be skipped.
+    if (skipRvo) {
+      currCol++;
+      prevRvo = currRvo;
+    } else {    
+      // Coerse string into numeric.
+      const consumption = +string
+      if (consumption) {
+        consumos[currRvo] // Access the reagent.
+        [cols[currCol]] // Access the column name.
+        += consumption; // And sum the value.
+      }
+      currCol++;
+      prevRvo = currRvo;
+    }
+
+  }
+  
+  /* This check is necessary for the last reagent since 
+  it's normally checked at the beggining of next reagent. */
   checkCols(currCol, cols, prevRvo);
+  
+  if (ignored) {
+    console.log('\nSe ignoraron', ...ignored, 'debido a que no están en la base de datos.');
+  }
+
   return consumos;
 }
 

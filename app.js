@@ -1,6 +1,6 @@
 import {load} from 'cheerio';
 import { post, getCookie, reqConfig, domain } from './requests.js';
-import { getPdfData, filterData, getRows, organizeConsumos } from './parsers.js';
+import { getPdfData, filterData, getRows, organizeConsumos, classifyConsumos } from './parsers.js';
 
 
 const user = {
@@ -17,17 +17,17 @@ const searchParams = {
 
 (async () => {
 
-  const cookie = await getCookie(domain);
+  // const cookie = await getCookie(domain);
 
-  await post(reqConfig.login, user, cookie);
+  // await post(reqConfig.login, user, cookie);
 
-  const $ = load(await post(reqConfig.search, searchParams, cookie));
+  // const $ = load(await post(reqConfig.search, searchParams, cookie));
 
-  const rows = getRows($);
-  console.log(rows);
+  // const rows = getRows($);
+  // console.log(rows);
   
   let consumos = await getPdfData('03/03/2023', '03/08/2023');
   consumos = filterData(consumos);
-  consumos = await organizeConsumos(consumos);
+  consumos = classifyConsumos(consumos, ['px', 'rep', 'qc', 'man']);
   console.log(consumos);
 })();
