@@ -1,5 +1,5 @@
 import quimiosNames from '../../shared/domain/quimios-names.js';
-import ArrayClassifier from '../domain/ArrayClassifier.js';
+import ArrayClassifier from './ArrayClassifier.js';
 import checkCols from './check-cols.js';
 
 

@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 
 
 async function readPdf(file) {
-  const parser = new PdfDataParser({ url: file });
+  const parser = new PdfDataParser({ url: file,  });
   const parsedPdf = await parser.parse();
   /* PdfDataParser.parse() returns a promise
     of an array of arrays of string data*/

@@ -9,3 +9,13 @@ export function getRows($) {
   });
   return rows;
 }
+
+
+export function getInventory($, rows) {
+  let inventory = {};
+  for (let row in rows) {
+    inventory[row] = +$(`#ctl00_ContentMasterPage_grdConsumo_ctl${rows[row]}_lblExistFinal`).text();
+  }
+
+  return inventory;
+}

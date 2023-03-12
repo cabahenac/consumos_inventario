@@ -1,9 +1,11 @@
 import {load} from 'cheerio';
 import { post, getCookie } from './inventory/application/requests.js';
-import { getConsumos, filterData } from './consumos/domain/parsers.js';
+import { getConsumos, filterData } from './consumos/application/parsers.js';
 import { classifyConsumos } from './consumos/application/classify-consumos.js';
+import { getTotals } from './consumos/application/calculations.js';
 import { domain, reqConfig } from './inventory/domain/config.js';
-import { getRows } from './inventory/application/parsers.js';
+import { getRows, getInventory } from './inventory/application/parsers.js';
+import { enoughInventory } from './shared/application/calculations.js';
 
 const user = {
   Login1$UserName: 'cbahena',
@@ -26,10 +28,14 @@ const searchParams = {
   const $ = load(await post(reqConfig.search, searchParams, cookie));
 
   const rows = getRows($);
-  console.log(rows);
+  const inventory = getInventory($, rows);
   
   let consumos = await getConsumos('03/03/2023', '03/08/2023');
   consumos = filterData(consumos);
   consumos = classifyConsumos(consumos, ['px', 'rep', 'qc', 'man']);
-  console.log(consumos);
+  consumos = getTotals(consumos);
+  
+  const [toCapture, toLog] = enoughInventory(inventory, consumos);
+  console.log(toCapture);
+  console.log(toLog);
 })();
