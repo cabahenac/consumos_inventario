@@ -1,11 +1,9 @@
 import axios from "axios";
 import querystring from 'querystring';
-import { domain } from "../domain/config.js";
 
-
-export async function getCookie(domain) {
+export async function getCookie() {
   // GET request to get a session cookie.
-  return (await axios.get(domain)) // Await the response.
+  return (await axios.get(process.env.DOMAIN)) // Await the response.
     .headers // Then access the headers which contains an AxiosHeaders object,
     ['set-cookie'] // access the set-cookie key which contains an array 
     [0] // and access the single string which contains cookie data separated by ";".
@@ -17,9 +15,19 @@ export async function getCookie(domain) {
 export async function post(config, specificData, sessionCookie) {
   const data = querystring.stringify({...config.commonData, ...specificData});
   const response = await axios.post(
-    domain + config.uri,
+    process.env.DOMAIN + config.uri,
     data,
     { headers: { Cookie: sessionCookie } },
   );
   return response.data;
+}
+
+
+export async function x(config, specificData, sessionCookie) {
+  const data = {...config.commonData, ...specificData};
+  console.log(
+    process.env.DOMAIN + config.uri,
+    data,
+    { headers: { Cookie: sessionCookie } },
+  );
 }

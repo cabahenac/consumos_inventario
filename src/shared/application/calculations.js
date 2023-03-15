@@ -17,3 +17,14 @@ export function enoughInventory(inventory, consumos) {
 
   return [enough, notEnough];
 }
+
+
+export function logInsufficientInventory(rvos) {
+  for (let rvo in rvos) {
+    console.log(
+      `\nSolo hay ${rvos[rvo].inventory} pruebas de ${rvo} en inventario. No se pueden capturar los ${rvos[rvo].consumo} consumos.`,
+    );
+
+  }
+  
+}

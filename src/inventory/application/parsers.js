@@ -1,21 +1,45 @@
-// (For all functions, $ stands for a cheerio HTML parser function)
+const consumosPrefixId = '#ctl00_ContentMasterPage_grdConsumo_ctl';
+const consumosPrefixName = 'ctl00$ContentMasterPage$grdConsumo$ctl';
 
-export function getRows($) {
+
+export function getRows(htmlParser) {
   const rows = {};
-  $('.wd090').each((i, e) => {
-    const rvo = $(e).text();
-    const row = $(e).attr('id').slice(38, 40);
+  htmlParser('.wd090').each((i, e) => {
+    const rvo = htmlParser(e).text();
+    const row = htmlParser(e).attr('id')
+      .slice(38, 40);
     rows[rvo] = row;
   });
   return rows;
 }
 
 
-export function getInventory($, rows) {
+export function getInventory(htmlParser, rows) {
   let inventory = {};
-  for (let row in rows) {
-    inventory[row] = +$(`#ctl00_ContentMasterPage_grdConsumo_ctl${rows[row]}_lblExistFinal`).text();
+  for (let rvo in rows) {
+    inventory[rvo] = +htmlParser(`${consumosPrefixId}${rows[rvo]}_lblExistFinal`).text();
   }
 
   return inventory;
+}
+
+
+export function getMetaValues(htmlParser, rows) {
+  const fixedValues = {
+    $chkQueProveedor: 'on',
+    $txtValidacionCapMGrd: 0,
+    $txtSinIdentificarCapMGrd: 0,
+    $cmbMotSinIdentificarGrd: '[Seleccione]',
+  };
+  
+  let metaValues = {};
+  for (let rvo in rows) {
+    metaValues[`${consumosPrefixName}${rows[rvo]}$hfIDProducto`] = 
+      +htmlParser(`${consumosPrefixId}${rows[rvo]}_hfIDProducto`).attr('value');
+    for (let metaName in fixedValues) {
+      metaValues[`${consumosPrefixName}${rows[rvo]}${metaName}`] = fixedValues[metaName];
+    }
+  }
+
+  return metaValues;
 }
