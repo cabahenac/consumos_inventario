@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from 'body-parser';
-import captureConsumos from "./app.js";
+import captureConsumos from "./application/app.js";
 
 const app = express();
 

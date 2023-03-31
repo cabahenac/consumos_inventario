@@ -1,4 +1,4 @@
-import quimiosNames from '../../shared/domain/quimios-names.js';
+import quimiosNames from '../domain/quimios-names.js';
 import ArrayClassifier from './ArrayClassifier.js';
 import checkCols from './check-cols.js';
 
@@ -18,6 +18,7 @@ function rvoStrategy(string, accumulator) {
   if (!quimiosNames[string]) {
     this.skip = true; // Program to skip numbers.
     this.currChild = 0; // Clean up before skipping reagent.
+    if (['BILIIMTY', 'CAPFIJMT', 'COLLMTY', 'COLVLMTY', '%DESATMT', 'GLOBULMT', 'INDICMTY', 'IRI_MTY', 'REL', 'A/GM', 'RELBUNCM', 'UREMTY', 'ESTTOMTY', 'ITLMTY', 'YODOPRMT'].includes(string)) return;
     this.log.push(string);
     return; // Continue to numbers and skip them in their loop cycle.
   }
@@ -73,7 +74,7 @@ function consumosCleanUp() {
 
 
 function consumosLogger() {
-  if (this.log) {
+  if (this.log?.length !== 0) {
     console.log('\nSe ignoraron', ...this.log, 'debido a que no están en la base de datos.');
   }
 }

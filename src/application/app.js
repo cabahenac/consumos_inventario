@@ -1,12 +1,12 @@
 import { load } from 'cheerio';
-import { post, getCookie } from './inventory/application/requests.js';
-import { getConsumos, filterData } from './consumos/application/parsers.js';
-import { classifyConsumos } from './consumos/application/classify-consumos.js';
-import { calculate, getTotal, getPx, addCols, getCals, getExceptions } from './consumos/application/calculations.js';
-import { reqConfig } from './inventory/domain/config.js';
-import { getRows, getInventory, getMetaValues } from './inventory/application/parsers.js';
-import { enoughInventory, logInsufficientInventory } from './shared/application/calculations.js';
-import { colNames, generateInputValues } from './inventory/application/gen-input-val.js';
+import { post, getCookie } from './requests.js';
+import { getConsumos, filterData } from './parsers.js';
+import { classifyConsumos } from './classify-consumos.js';
+import { calculate, getTotal, getPx, addCols, getCals, getExceptions } from './calculations.js';
+import { reqConfig } from '../domain/config.js';
+import { getRows, getInventory, getMetaValues } from './parsers.js';
+import { enoughInventory, logInsufficientInventory } from './calculations.js';
+import { colNames, generateInputValues } from './gen-input-val.js';
 
 
 const user = {
