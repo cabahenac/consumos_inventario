@@ -15,14 +15,14 @@ async function readPdf(file) {
 
 export async function getConsumos(from, to) {
   // Read directory and get all file names.
-  let files = await readdir('./src/consumos/domain/pdf');
+  let files = await readdir('C:/Users/monterrey1/Desktop');
 
   // Filter PDF files.
   files = files.filter(file => file.endsWith('.pdf'));
   
   // Queue a promise of parsing each file.
   const promisesOfData = files.map(
-    file => readPdf('./src/consumos/domain/pdf/' + file)
+    file => readPdf('C:/Users/monterrey1/Desktop/' + file)
   );
   
   // Parse from and to dates to a date integer.
