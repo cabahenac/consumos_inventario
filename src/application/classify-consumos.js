@@ -18,7 +18,7 @@ function rvoStrategy(string, accumulator) {
   if (!quimiosNames[string]) {
     this.skip = true; // Program to skip numbers.
     this.currChild = 0; // Clean up before skipping reagent.
-    if (['BILIIMTY', 'CAPFIJMT', 'COLLMTY', 'COLVLMTY', '%DESATMT', 'GLOBULMT', 'INDICMTY', 'IRI_MTY', 'REL', 'A/GM', 'RELBUNCM', 'UREMTY', 'ESTTOMTY', 'ITLMTY', 'YODOPRMT'].includes(string)) return;
+    if (['BILIIMTY', 'CAPFIJMT', 'COLLMTY', 'COLVLMTY', '%DESATMT', 'GLOBULMT', 'INDICMTY', 'IRI_MTY', 'REL', 'A/GM', 'RELBUNCM', 'UREMTY', 'ESTTOMTY', 'ITLMTY', 'YODOPRMT', '%PSALMTY'].includes(string)) return;
     this.log.push(string);
     return; // Continue to numbers and skip them in their loop cycle.
   }

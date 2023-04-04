@@ -1,4 +1,5 @@
 import { consumosPerCal } from "../domain/cals.js";
+import { pbasPorVial } from "../domain/pbas.js";
 
 
 export function getTotal(consumos, rvo) {
@@ -10,6 +11,43 @@ export function getTotal(consumos, rvo) {
 
 
 export function getPx(consumos, rvo) {
+  consumos[rvo].px = consumos[rvo].res - consumos[rvo].man;
+}
+
+
+export function getQCAMSCorrection(consumos, rvo) {
+  if ([
+    'C3',
+    'C4',
+    'IgG',
+    'IgM',
+    'IgA',
+    'IgE',
+    'PCR-ULTRA',
+    'TRF',
+  ].includes(rvo)) {
+    consumos[rvo].qc += 2;
+  }
+}
+
+
+export function getPxAMSCorrection(consumos, rvo) {
+  if ([
+    'C3',
+    'C4',
+    'IgG',
+    'IgM',
+    'IgA',
+    'IgE',
+    'PCR-ULTRA',
+    'TRF',
+  ].includes(rvo)) {
+    if (consumos[rvo].res - consumos[rvo].man >= 2){
+      consumos[rvo].px = consumos[rvo].res - consumos[rvo].man - 2;
+      return
+    }
+  }
+
   consumos[rvo].px = consumos[rvo].res - consumos[rvo].man;
 }
 
@@ -37,9 +75,30 @@ export function getCals(consumos, listOfCalibrations) {
 export function getExceptions(consumos, exceptions) {
   for (let rvo in exceptions) {
     for (let exception in exceptions[rvo]) {
-      console.log(exception);
       consumos[rvo][exception] += exceptions[rvo][exception];
     }
+  }
+}
+
+export function getCanc(consumos, params) {
+  for (let rvo of params.canc) {
+    if (!consumos[rvo]) {
+      consumos[rvo] = {
+        res: 0,
+        rep: 0,
+        qc: 0,
+        man: 0,
+        total: 0,
+        px: 0,
+        cal: 0,
+        canc: 0,
+        motivo: '[Seleccione]',
+      }
+    }
+
+    const initInv = +params.htmlParser(`#ctl00_ContentMasterPage_grdConsumo_ctl${params.rows[rvo]}_lblExistInicial`).text();
+    console.log(`(${initInv} - ${consumos[rvo].total}) % ${pbasPorVial[rvo]} = ${(params.inv[rvo] - consumos[rvo].total) % pbasPorVial[rvo]}`);
+    consumos[rvo].canc += (initInv - consumos[rvo].total) % pbasPorVial[rvo];
   }
 }
 
@@ -63,8 +122,6 @@ export function calculate(consumos, iteratorOperations, specialOperations) {
   }
   return consumos
 }
-
-
 
 
 export function enoughInventory(inventory, consumos) {

@@ -2,7 +2,7 @@ import { load } from 'cheerio';
 import { post, getCookie } from './requests.js';
 import { getConsumos, filterData } from './parsers.js';
 import { classifyConsumos } from './classify-consumos.js';
-import { calculate, getTotal, getPx, addCols, getCals, getExceptions } from './calculations.js';
+import { calculate, getTotal, getPx, addCols, getCals, getCanc, getQCAMSCorrection, getPxAMSCorrection } from './calculations.js';
 import { reqConfig } from '../domain/config.js';
 import { getRows, getInventory, getMetaValues } from './parsers.js';
 import { enoughInventory, logInsufficientInventory } from './calculations.js';
@@ -25,26 +25,22 @@ function dateUS(date) {
 }
 
 
-function objToArr(obj) {
-  delete obj.to;
-  delete obj.from;
-  let arr = ['CLORO-S', 'CLORO-S', 'CLORO-S'];
+function objToArr(obj, filter) {
+  let arr = [];
   for (let el in obj) {
-    if (el !== 'Seleccione') {
+    if (obj[el] !== 'Seleccione' && el.startsWith(filter)) {
       arr.push(obj[el]);
     }
   }
-  console.log(arr);
   return arr;
 }
-
-
-const exceptions = {}
 
 export default async function captureConsumos(body) {
 
   let { from, to } = body;
-  let listOfCalibrations = objToArr(body);
+  let listOfCalibrations = [...objToArr(body, 'cal'), 'CLORO-S', 'CLORO-S', 'CLORO-S'];
+  let cancelations = objToArr(body, 'canc')
+  console.log(listOfCalibrations, cancelations);
   let searchParams = {
     ctl00$ContentMasterPage$txtDesdeB: dateMX(to),
     ctl00$ContentMasterPage$cmbEquipo: 6,
@@ -63,31 +59,31 @@ export default async function captureConsumos(body) {
 
   let [[html, cookie], consumos] = await Promise.all([
     getQuimiosData(), 
-    getConsumos(dateUS(to), dateUS(from)),
+    getConsumos(dateUS(from), dateUS(to)),
   ]);
 
   const rows = getRows(html);
   const inventory = getInventory(html, rows);
   const metaValues = getMetaValues(html, rows);
-  
   consumos = filterData(consumos);
   consumos = classifyConsumos(consumos, ['res', 'rep', 'qc', 'man']);
   consumos = calculate(
     consumos, 
     [
       getTotal, 
-      getPx, 
-      addCols], 
+      getPxAMSCorrection,
+      addCols,
+      getQCAMSCorrection, 
+    ], 
     {
       cals: { func: getCals , params: listOfCalibrations },
-      excep: { func: getExceptions, params: exceptions },
+      canc: { func: getCanc, params: { inv: inventory, canc: cancelations, htmlParser: html, rows: rows } },
     }
   );
   
   const [toCapture, toLog] = enoughInventory(inventory, consumos);
   logInsufficientInventory(toLog)
   const inputValues = generateInputValues(toCapture, rows, colNames);
-
   const res = post(reqConfig.save, {...inputValues, ...metaValues, ...searchParams}, cookie)
   
   return res.data;
