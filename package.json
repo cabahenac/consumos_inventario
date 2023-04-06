@@ -2,7 +2,7 @@
   "name": "consumos-app",
   "version": "1.0.0",
   "description": "A simple web app that uses web scrapping to get data from a Web App called QUIMIOS-W plus the file system to calculate daily reagent consumption and send a post request to the Web App to update the inventory.",
-  "main": "src/index.js",
+  "main": "src/api/server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

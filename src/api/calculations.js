@@ -1,5 +1,5 @@
-import { consumosPerCal } from "../domain/cals.js";
-import { pbasPorVial } from "../domain/pbas.js";
+import { consumosPerCal } from "../data/cals.js";
+import { pbasPorVial } from "../data/pbas.js";
 
 export function getTotal(consumos, rvo) {
   consumos[rvo].total = 0;

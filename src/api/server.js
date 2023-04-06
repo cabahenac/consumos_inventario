@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import bodyParser from "body-parser";
-import captureConsumos from "./application/main.js";
+import captureConsumos from "./main.js";
 
 dotenv.config();
 

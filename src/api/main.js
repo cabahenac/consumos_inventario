@@ -1,5 +1,5 @@
 import { post } from "./requests.js";
-import { getQuimiosData, getConsumos, filterData } from "./parsers.js";
+import { getConsumos, filterData } from "./pdf-parsers.js";
 import { classifyConsumos } from "./classify-consumos.js";
 import {
   calculate,
@@ -12,8 +12,13 @@ import {
   getPxAMSCorrection,
   getExceptions,
 } from "./calculations.js";
-import { reqConfig } from "../domain/config.js";
-import { getRows, getInventory, getMetaValues } from "./parsers.js";
+import { reqConfig } from "../data/config.js";
+import {
+  getQuimiosData,
+  getRows,
+  getInventory,
+  getMetaValues,
+} from "./html-parsers.js";
 import { enoughInventory, logInsufficientInventory } from "./calculations.js";
 import { generateInputValues } from "./gen-input-val.js";
 import { dateMX, dateUS, objToArr } from "./utils.js";
