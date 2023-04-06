@@ -1,15 +1,11 @@
-import { useState } from "react";
-import Cals from "./Cals";
+import Col from "./Col";
 import "./App.css";
 
-function App() {
-  const [cals, setCals] = useState(["TT3", "TT4"]);
-
+export default function App() {
   return (
     <div className="container">
-      <Cals />
+      <Col name="Calibraciones" defaults={["Na", "K", "Cl"]} />
+      <Col name="Excepciones" />
     </div>
   );
 }
-
-export default App;
